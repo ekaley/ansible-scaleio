@@ -1,0 +1,15 @@
+# vim:ft=ansible:
+---
+- hosts: all
+  name: "set up facts"
+  tags: always
+  tasks:
+    - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+    - set_fact: scaleio_mdm_ips="{{scaleio_mdm_primary_ip}}"
+
+- hosts: sds
+  name: "Install and configure ScaleIO SDS"
+  roles:
+    - scaleio-sds
+  tags: scaleio-sds
+
