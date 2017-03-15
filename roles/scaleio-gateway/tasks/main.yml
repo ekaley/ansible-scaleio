@@ -6,5 +6,5 @@
 
 - include: ../../scaleio-common/tasks/install_scaleio.yml
 
-- include: install_keepalived.yml
-  when: scaleio_gateway_is_redundant == "true"
+#- include: install_keepalived.yml
+#  when: scaleio_gateway_is_redundant

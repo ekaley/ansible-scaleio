@@ -27,6 +27,8 @@
   run_once: true
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
   when: ("'single mode' not in add_tb.stderr") and  ( scaleio_cluster_mode  == "3_node")
+  register: command_result
+  failed_when: "'already in this cluster mode' not in command_result.stderr and command_result.rc != 0"
 
 - name: switch to cluster five node
   command: scli --switch_cluster_mode --cluster_mode "{{ scaleio_cluster_mode }}" --add_slave_mdm_ip  "{{ scaleio_mdm_secondary_ip }}","{{ scaleio_mdm_tertiary_ip }}" --add_tb_ip "{{ scaleio_tb_primary_ip }}","{{ scaleio_tb_secondary_ip }}"
@@ -40,6 +42,7 @@
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
   register: add_pd
   changed_when: "'already exists' not in add_pd.stderr"
+  failed_when: "'already exists' not in add_pd.stderr and add_pd.rc != 0"
 
 - name: add fault set
   command: scli --add_fault_set --protection_domain_name "{{ scaleio_protection_domain }}" --fault_set_name "{{ item }}"
@@ -48,10 +51,10 @@
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
   register: add_fs
 
-
 - name: add storage pool
   command: scli --mdm_ip {{ scaleio_mdm_ips }} --add_storage_pool --protection_domain_name {{ scaleio_protection_domain }} --storage_pool_name {{ scaleio_storage_pool }}
   run_once: true
   register: storage_pool_add
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
   changed_when: (storage_pool_add.rc == 7) or (storage_pool_add.rc == 0)
+  failed_when: "'already exists' not in storage_pool_add.stderr and storage_pool_add.rc != 0"

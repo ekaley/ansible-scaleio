@@ -3,7 +3,7 @@ scaleio_protection_domain: protection_domain1
 scaleio_cluster_name: cluster1
 scaleio_storage_pool: pool1
 
-# scaleio_fault_set: ['fs1','fs2','fs3']
+scaleio_fault_set: []
 # scaleio_fault_sets:
 #  - {fs: 'fs1', sds: 'sio1'}
 #   - {fs: 'fs1', sds: 'sio2'}
@@ -12,7 +12,7 @@ scaleio_storage_pool: pool1
 #   - {fs: 'fs3', sds: 'sio5'}
 #   - {fs: 'fs3', sds: 'sio6'}
 
-scaleio_cluster_mode: "5_node"
+scaleio_cluster_mode: "3_node"
 
 scaleio_interface: eth1
 scaleio_password: Cluster1!

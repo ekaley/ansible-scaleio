@@ -28,6 +28,7 @@
       when: scaleio_mdm_tertiary_ip is defined
 
     - set_fact: scaleio_gateway_primary_ip='{{ hostvars[groups['gateway'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}'
+      when: hostvars[groups['gateway'][0]] is defined
     - set_fact: scaleio_gateway_secondary_ip='{{ hostvars[groups['gateway'][1]]['ansible_'+scaleio_interface]['ipv4']['address'] }}'
       when: hostvars[groups['gateway'][1]] is defined
 
