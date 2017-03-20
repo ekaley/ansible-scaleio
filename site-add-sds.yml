@@ -1,10 +1,24 @@
 # vim:ft=ansible:
 ---
+
+- hosts: all
+  name: "set up hosts"
+  tags: always
+  tasks:
+    - add_host:
+        name: "{{ sds_host }}"
+        groups: sds
+
+    - add_host:
+        name: "{{ mdm_host }}"
+        groups: mdm
+
 - hosts: all
   name: "set up facts"
   tags: always
   tasks:
     - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+    - set_fact: scaleio_mdm_primary_hostname="{{ hostvars[groups['mdm'][0]]['inventory_hostname'] }}"
     - set_fact: scaleio_mdm_ips="{{scaleio_mdm_primary_ip}}"
 
 - hosts: sds
