@@ -1,0 +1,26 @@
+---
+- name: login to mdm
+  command: scli --login --mdm_ip {{ scaleio_mdm_ips }} --username admin --password '{{ scaleio_password }}' --approve_certificate
+  run_once: true
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Unmap Volume from SDC
+  command: scli --unmap_volume_from_sdc --mdm_ip {{ scaleio_mdm_ips }} --volume_name "{{ scaleio_volume_name }}" --sdc_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address'] }} --i_am_sure
+  register: command_result
+  failed_when: "'The volume is not mapped to SDC' not in command_result.stderr and command_result.rc != 0"  
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Set Restricted mode on MDM
+  command: scli --set_restricted_sdc_mode --restricted_sdc_mode enabled
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Remove SDC
+  command: scli --mdm_ip {{ scaleio_mdm_ips }} --remove_sdc --sdc_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address'] }}
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Set Restricted mode on MDM
+  command: scli --set_restricted_sdc_mode --restricted_sdc_mode disabled
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Uninstall Package
+  package: name="EMC-ScaleIO-sdc" state="absent"

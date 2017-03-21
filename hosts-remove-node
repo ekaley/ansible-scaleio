@@ -1,0 +1,15 @@
+[mdm]
+node0
+node1
+
+[tb]
+node2
+
+[sdc]
+node0
+node1
+
+[sds]
+node0
+node1
+node2

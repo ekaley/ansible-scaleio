@@ -1,0 +1,22 @@
+---
+- name: login to mdm
+  command: scli --login --mdm_ip {{ scaleio_mdm_primary_ip }} --username admin --password '{{ scaleio_password }}' --approve_certificate
+  run_once: true
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Remove SDS
+  command: scli --mdm_ip {{ scaleio_mdm_primary_ip }} --remove_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+
+- name: Query SDS
+  action:
+    shell scli --mdm_ip {{ scaleio_mdm_primary_ip }} --query_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+  register: result
+  until: (result.stderr.find("MDM failed command.") != -1) and (result.stderr.find("The SDS IP address cannot be found.") != -1)
+  ignore_errors: yes
+  delay: 60 
+  retries: 1000
+
+- name: Uninstall Package
+  package: name="EMC-ScaleIO-sds" state="absent"                                                   

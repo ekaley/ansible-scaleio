@@ -1,0 +1,25 @@
+---
+- hosts: all
+  tasks:
+  - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+  - set_fact: scaleio_mdm_primary_hostname="{{ hostvars[groups['mdm'][0]]['inventory_hostname'] }}"
+  - set_fact: scaleio_mdm_secondary_ip="{{ hostvars[groups['mdm'][1]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+  - set_fact: scaleio_mdm_secondary_hostname="{{ hostvars[groups['mdm'][1]]['inventory_hostname'] }}"
+  - set_fact: scaleio_mdm_tertiary_ip="{{ hostvars[groups['mdm'][2]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+    when: hostvars[groups['mdm'][2]] is defined
+  - set_fact: scaleio_mdm_ips="{{ scaleio_mdm_secondary_ip }},{{scaleio_mdm_primary_ip}}"
+    when: scaleio_mdm_tertiary_ip is not defined
+  - set_fact: scaleio_mdm_ips="{{ scaleio_mdm_secondary_ip }},{{scaleio_mdm_primary_ip}},{{scaleio_mdm_tertiary_ip}}"
+    when: scaleio_mdm_tertiary_ip is defined
+
+- hosts: sdc
+  name: "Unmount and remove ScaleIO SDC"
+  tasks:
+    - include: roles/scaleio-sdc/tasks/remove-sdc.yml
+  tags: scaleio-sdc-remove
+
+- hosts: sds
+  name: "Remove ScaleIO SDS and query SDS"
+  tasks:
+    - include: roles/scaleio-sds/tasks/remove-sds.yml
+  tags: scaleio-sds-remove
