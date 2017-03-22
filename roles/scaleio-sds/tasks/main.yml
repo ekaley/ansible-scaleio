@@ -34,3 +34,23 @@
   ignore_errors: yes
   when: scaleio_fault_sets is defined and "{{ item.sds }}" == "{{ inventory_hostname }}"
   with_items: scaleio_fault_sets
+
+- name: Query SDS - wait for rebalance start
+  action:
+    shell scli --mdm_ip {{ scaleio_mdm_ips }} --query_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+  register: result
+  until: (result.stdout.find("\t0 active moving-in rebalance jobs") == -1) and (result.stdout.find("\t0 pending moving-in rebalance jobs") == -1)
+  ignore_errors: yes
+  delay: 60
+  retries: 1000
+
+- name: Query SDS - wait for rebalance finish
+  action:
+    shell scli --mdm_ip {{ scaleio_mdm_ips }} --query_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+  delegate_to: "{{ scaleio_mdm_primary_hostname }}"
+  register: result
+  until: (result.stdout.find("\t0 active moving-in rebalance jobs") != -1) and (result.stdout.find("\t0 pending moving-in rebalance jobs") != -1)
+  ignore_errors: yes
+  delay: 60
+  retries: 1000

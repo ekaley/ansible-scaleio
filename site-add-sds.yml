@@ -5,15 +5,20 @@
   name: "set up hosts"
   tags: always
   tasks:
+    - set_fact: sds_hosts_obj="{{ sds_hosts | default({}) }}"
     - add_host:
-        name: "{{ sds_host }}"
+        name: "{{ item.ip }}"
         groups: sds
-        when: sds_host is defined
-
+        ansible_ssh_user: "{{ item.user }}"
+        ansible_ssh_pass: "{{ item.pass }}"
+      with_items: "{{ sds_hosts_obj }}"
+    - set_fact: mdm_hosts_obj="{{ mdm_hosts | default({}) }}"
     - add_host:
-        name: "{{ mdm_host }}"
+        name: "{{ item.ip }}"
         groups: mdm
-        when: mdm_host is defined
+        ansible_ssh_user: "{{ item.user }}"
+        ansible_ssh_pass: "{{ item.pass }}"
+      with_items: "{{ mdm_hosts_obj }}"
 
 - hosts: all
   name: "set up facts"
@@ -21,8 +26,14 @@
   tasks:
     - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
     - set_fact: scaleio_mdm_primary_hostname="{{ hostvars[groups['mdm'][0]]['inventory_hostname'] }}"
-    - set_fact: scaleio_mdm_ips="{{scaleio_mdm_primary_ip}}"
-
+    - set_fact: scaleio_mdm_secondary_ip="{{ hostvars[groups['mdm'][1]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+    - set_fact: scaleio_mdm_secondary_hostname="{{ hostvars[groups['mdm'][1]]['inventory_hostname'] }}"
+    - set_fact: scaleio_mdm_tertiary_ip="{{ hostvars[groups['mdm'][2]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+      when: hostvars[groups['mdm'][2]] is defined
+    - set_fact: scaleio_mdm_ips="{{ scaleio_mdm_secondary_ip }},{{scaleio_mdm_primary_ip}}"
+      when: scaleio_mdm_tertiary_ip is not defined
+    - set_fact: scaleio_mdm_ips="{{ scaleio_mdm_secondary_ip }},{{scaleio_mdm_primary_ip}},{{scaleio_mdm_tertiary_ip}}"
+      when: scaleio_mdm_tertiary_ip is defined
 - hosts: sds
   name: "Install and configure ScaleIO SDS"
   roles:
