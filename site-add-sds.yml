@@ -1,17 +1,19 @@
 # vim:ft=ansible:
 ---
 
-- hosts: all
+- hosts: localhost
   name: "set up hosts"
   tags: always
   tasks:
     - add_host:
         name: "{{ sds_host }}"
         groups: sds
+        when: sds_host is defined
 
     - add_host:
         name: "{{ mdm_host }}"
         groups: mdm
+        when: mdm_host is defined
 
 - hosts: all
   name: "set up facts"
