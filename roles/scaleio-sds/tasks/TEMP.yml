@@ -1,0 +1,8 @@
+- name: create list obj
+  set_fact: sds_interface_obj="{{ scaleio_data_interface | default({}) }}"
+
+- name: find sds data ips
+  set_fact: sds_interface="{{ scaleio_data_interface|join(',') }}"
+
+- debug:
+    msg: "{{ sds_interface }}"

@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  name: "Run Test"
+  tasks:
+    - include: roles/scaleio-sds/tasks/TEMP.yml
+  tags: TEMP
