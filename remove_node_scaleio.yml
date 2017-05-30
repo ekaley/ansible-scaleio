@@ -24,15 +24,16 @@
         groups: mdm
         ansible_ssh_user: "{{ item.user }}"
         ansible_ssh_pass: "{{ item.pass }}"
+        mdm_data_ip: "{{ item.data_ip }}"
       with_items: "{{ mdm_hosts_obj }}"
 
 - hosts: all
   tasks:
-  - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+  - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['mdm_data_ip'] }}"
   - set_fact: scaleio_mdm_primary_hostname="{{ hostvars[groups['mdm'][0]]['inventory_hostname'] }}"
-  - set_fact: scaleio_mdm_secondary_ip="{{ hostvars[groups['mdm'][1]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+  - set_fact: scaleio_mdm_secondary_ip="{{ hostvars[groups['mdm'][1]]['mdm_data_ip'] }}"
   - set_fact: scaleio_mdm_secondary_hostname="{{ hostvars[groups['mdm'][1]]['inventory_hostname'] }}"
-  - set_fact: scaleio_mdm_tertiary_ip="{{ hostvars[groups['mdm'][2]]['ansible_'+scaleio_interface]['ipv4']['address'] }}"
+  - set_fact: scaleio_mdm_tertiary_ip="{{ hostvars[groups['mdm'][2]]['mdm_data_ip'] }}"
     when: hostvars[groups['mdm'][2]] is defined
   - set_fact: scaleio_mdm_ips="{{ scaleio_mdm_secondary_ip }},{{scaleio_mdm_primary_ip}}"
     when: scaleio_mdm_tertiary_ip is not defined
