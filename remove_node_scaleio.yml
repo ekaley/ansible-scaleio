@@ -26,7 +26,10 @@
         ansible_ssh_pass: "{{ item.pass }}"
         mdm_data_ip: "{{ item.data_ip }}"
       with_items: "{{ mdm_hosts_obj }}"
-
+      
+    - set_fact: scaleio_sdc_volume_names_obj="{{ scaleio_sdc_volume_names  | default({}) }}"
+    
+    
 - hosts: all
   tasks:
   - set_fact: scaleio_mdm_primary_ip="{{ hostvars[groups['mdm'][0]]['mdm_data_ip'] }}"
