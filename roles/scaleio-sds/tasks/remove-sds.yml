@@ -5,12 +5,12 @@
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
 
 - name: Remove SDS
-  command: scli --mdm_ip {{ scaleio_mdm_ips }} --remove_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+  command: scli --mdm_ip {{ scaleio_mdm_ips }} --remove_sds --sds_ip {{ inventory_hostname }}
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
 
 - name: Query SDS
   action:
-    shell scli --mdm_ip {{ scaleio_mdm_ips }} --query_sds --sds_ip {{ hostvars[inventory_hostname]['ansible_'+scaleio_interface]['ipv4']['address']}}
+    shell scli --mdm_ip {{ scaleio_mdm_ips }} --query_sds --sds_ip {{ inventory_hostname }}
   delegate_to: "{{ scaleio_mdm_primary_hostname }}"
   register: result
   until: (result.stderr.find("MDM failed command.") != -1) and (result.stderr.find("The SDS IP address cannot be found.") != -1)
